@@ -176,6 +176,14 @@ Number of entries to retrieve from Contentful at a time. Due to some technical l
 
 If you want to resolve the locales in fields of assets and entries that are referenced by rich text (e.g., via embedded entries or entry hyperlinks), set this to `true`. Otherwise, fields of referenced assets or entries will be objects keyed by locale.
 
+**richText.includeEntryFields** and **richText.excludeEntryFields** [array][optional] [default: `undefined`]
+
+If you have entries that reference each other via their rich-text fields, Gatsby may get stuck in an infinite loop during build and throw a `Maximum call stack size exceeded` error. To prevent this, you can filter which fields should be included in entries referenced by the field. Set a list of field names to include or exclude using this option, and Gatsby will filter the fields of referenced entries accordingly.
+
+**`entryFieldTransformer`** [function][optional] [default: `undefined`]
+
+This allows for the transformation of rich-text fields in any way. It allows you to pass in a rich-text field into a function and then modify/add/delete inner field values.
+
 ## Notes on Contentful Content Models
 
 There are currently some things to keep in mind when building your content models at Contentful.

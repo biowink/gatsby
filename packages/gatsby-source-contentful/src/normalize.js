@@ -281,6 +281,44 @@ function prepareJSONNode(node, key, content, createNodeId, i = ``) {
   return JSONNode
 }
 
+function applyRichTextEntryFieldFilters(
+  entryItemFieldValue,
+  resolvable,
+  options
+) {
+  if (
+    _.get(entryItemFieldValue, `data.target.sys.id`) &&
+    resolvable.has(entryItemFieldValue.data.target.sys.id)
+  ) {
+    const { entryFieldTransformer, includeEntryFields, excludeEntryFields } =
+      options.richText || {}
+
+    let fields = entryItemFieldValue.data.target.fields
+    if (includeEntryFields) {
+      fields = _.pick(fields, includeEntryFields)
+    } else if (excludeEntryFields) {
+      fields = _.omit(fields, excludeEntryFields)
+    }
+
+    if (entryFieldTransformer) {
+      fields = entryFieldTransformer(fields)
+    }
+
+    entryItemFieldValue.data.target = {
+      sys: entryItemFieldValue.data.target.sys,
+      fields,
+    }
+  }
+
+  if (Array.isArray(entryItemFieldValue.content)) {
+    entryItemFieldValue.content.forEach(contentItem =>
+      applyRichTextEntryFieldFilters(contentItem, resolvable, options)
+    )
+  }
+}
+
+exports.applyRichTextEntryFieldFilters = applyRichTextEntryFieldFilters
+
 exports.createNodesForContentType = ({
   contentTypeItem,
   contentTypeItems,
@@ -296,6 +334,7 @@ exports.createNodesForContentType = ({
   space,
   useNameForId,
   richTextOptions,
+  options,
 }) => {
   // Establish identifier for content type
   //  Use `name` if specified, otherwise, use internal id (usually a natural-language constant,
@@ -415,6 +454,15 @@ exports.createNodesForContentType = ({
               )
             }
             delete entryItemFields[entryItemFieldKey]
+          } else if (
+            entryItemFieldValue.nodeType &&
+            entryItemFieldValue.nodeType === `document`
+          ) {
+            applyRichTextEntryFieldFilters(
+              entryItemFieldValue,
+              resolvable,
+              options
+            )
           }
         }
       })

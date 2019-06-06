@@ -212,6 +212,7 @@ exports.sourceNodes = async (
       space,
       useNameForId: pluginConfig.get(`useNameForId`),
       richTextOptions: pluginConfig.get(`richText`),
+      options: pluginOptions,
     })
   })
 

@@ -51,7 +51,11 @@ const optionsSchema = Joi.object().keys({
   richText: Joi.object()
     .keys({
       resolveFieldLocales: Joi.boolean(),
+      includeEntryFields: Joi.array().items(Joi.string()),
+      excludeEntryFields: Joi.array().items(Joi.string()),
+      entryFieldTransformer: Joi.func(),
     })
+    .oxor(`includeEntryFields`, `excludeEntryFields`)
     .default({}),
 })
 
